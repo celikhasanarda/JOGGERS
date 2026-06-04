@@ -61,6 +61,15 @@ exports.delete = function(id, callback) {
   }
 };
 
+exports.search = function(query, callback) {
+  try {
+    const results = booking.find(query);
+    callback(null, results);
+  } catch (err) {
+    callback(err);
+  }
+};
+
 exports.deleteAll = function(callback) {
   try {
     counter = 0;

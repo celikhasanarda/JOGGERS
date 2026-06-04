@@ -118,6 +118,66 @@ router.get('/booking', function(req, res, next) {
 });
 
 /**
+ * @api {get} booking/search SearchBookings
+ * @apiName SearchBookings
+ * @apiGroup Booking
+ * @apiVersion 1.0.0
+ * @apiDescription Searches bookings and returns full booking objects that match the given criteria.
+ *
+ * @apiParam {String} [firstname] Filter by guest firstname
+ * @apiParam {String} [lastname]  Filter by guest lastname
+ * @apiParam {date}   [checkin]   Return bookings with checkin on or after this date (YYYY-MM-DD)
+ * @apiParam {date}   [checkout]  Return bookings with checkout on or before this date (YYYY-MM-DD)
+ *
+ * @apiSuccess {Object[]} bookings              Array of matching booking objects
+ * @apiSuccess {Number}   bookings.bookingid    Booking ID
+ * @apiSuccess {String}   bookings.firstname    Guest firstname
+ * @apiSuccess {String}   bookings.lastname     Guest lastname
+ * @apiSuccess {Number}   bookings.totalprice   Total price
+ * @apiSuccess {Boolean}  bookings.depositpaid  Deposit paid status
+ * @apiSuccess {Object}   bookings.bookingdates Checkin and checkout dates
+ * @apiSuccess {String}   bookings.additionalneeds Additional needs
+ */
+router.get('/booking/search', function(req, res, next) {
+  const query = {};
+
+  if(typeof(req.query.firstname) != 'undefined'){
+    query.firstname = req.query.firstname;
+  }
+
+  if(typeof(req.query.lastname) != 'undefined'){
+    query.lastname = req.query.lastname;
+  }
+
+  if(typeof(req.query.checkin) != 'undefined'){
+    query["bookingdates.checkin"] = {$gte: new Date(req.query.checkin).toISOString()};
+  }
+
+  if(typeof(req.query.checkout) != 'undefined'){
+    query["bookingdates.checkout"] = {$lte: new Date(req.query.checkout).toISOString()};
+  }
+
+  Booking.search(query, function(err, records){
+    if(err){
+      res.sendStatus(500);
+    } else {
+      const results = records.map(function(record){
+        return {
+          bookingid: record.bookingid,
+          firstname: record.firstname,
+          lastname: record.lastname,
+          totalprice: record.totalprice,
+          depositpaid: record.depositpaid,
+          bookingdates: record.bookingdates,
+          additionalneeds: record.additionalneeds
+        };
+      });
+      res.send(results);
+    }
+  });
+});
+
+/**
  * @api {get} booking/:id GetBooking
  * @apiName GetBooking
  * @apiGroup Booking
