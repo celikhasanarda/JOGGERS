@@ -141,20 +141,32 @@ router.get('/booking', function(req, res, next) {
 router.get('/booking/search', function(req, res, next) {
   const query = {};
 
+  // Filter by guest first name (exact match)
   if(typeof(req.query.firstname) != 'undefined'){
     query.firstname = req.query.firstname;
   }
 
+  // Filter by guest last name (exact match)
   if(typeof(req.query.lastname) != 'undefined'){
     query.lastname = req.query.lastname;
   }
 
+  // Filter by check-in date (on or after the given date)
   if(typeof(req.query.checkin) != 'undefined'){
-    query["bookingdates.checkin"] = {$gte: new Date(req.query.checkin).toISOString()};
+    const checkinDate = new Date(req.query.checkin);
+    if(isNaN(checkinDate.getTime())){
+      return res.status(400).send({error: 'Invalid checkin date format. Use YYYY-MM-DD'});
+    }
+    query["bookingdates.checkin"] = {$gte: checkinDate.toISOString()};
   }
 
+  // Filter by check-out date (on or before the given date)
   if(typeof(req.query.checkout) != 'undefined'){
-    query["bookingdates.checkout"] = {$lte: new Date(req.query.checkout).toISOString()};
+    const checkoutDate = new Date(req.query.checkout);
+    if(isNaN(checkoutDate.getTime())){
+      return res.status(400).send({error: 'Invalid checkout date format. Use YYYY-MM-DD'});
+    }
+    query["bookingdates.checkout"] = {$lte: checkoutDate.toISOString()};
   }
 
   Booking.search(query, function(err, records){
