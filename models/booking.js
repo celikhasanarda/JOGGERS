@@ -61,6 +61,11 @@ exports.delete = function(id, callback) {
   }
 };
 
+/**
+ * Search bookings by query criteria.
+ * Returns full booking objects (not just IDs) matching the given filters.
+ * Supports filtering by firstname, lastname, checkin and checkout dates.
+ */
 exports.search = function(query, callback) {
   try {
     const results = booking.find(query);

@@ -1,5 +1,10 @@
 workspace "Restful Booker" "C4 Architecture for the Restful Booker hotel booking system - SE322 Project" {
 
+    # Architectural Tactics applied:
+    # 1. Warm Redundant Spare (Availability) - Visible in Level 1 System Context
+    # 2. Input Validation (Security) - Visible in Level 3 Component Diagram
+    # 3. Data Replication (Performance/Reliability) - Visible in Level 2 Container Diagram
+
     model {
         # --- People ---
         guest = person "Hotel Guest" "A guest who makes and manages hotel bookings via the API." "Guest"
